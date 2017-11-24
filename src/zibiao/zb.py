@@ -90,6 +90,45 @@ class ZB(object):
         return df_tmp.loc[:, ['PDI', 'MDI', 'ADX', 'ADXR']]
 
 
+    @classmethod
+    def ma(cls, stock_data, m1=5, m2=10, m3=20, m4=60):
+        """
+        MA1:MA(CLOSE,M1);
+        MA2:MA(CLOSE,M2);
+        MA3:MA(CLOSE,M3);
+        MA4:MA(CLOSE,M4);
+
+        :param stock_data:
+        :return:
+        """
+        df = stock_data.loc[:, ["close"]]
+        names = []
+        for m in [m1, m2, m3, m4]:
+            if m<=0:continue
+            name = 'MA%d' % m
+            names.append(name)
+            df[name] = df['close'].rolling(center=False, min_periods=1, window=m).mean()
+
+        return df.loc[:, names]
+
+
+    @classmethod
+    def vol(cls, stock_data, m1=3, m2=5, m3=10):
+        """
+        :param stock_data:
+        :return:
+        """
+        df = stock_data.loc[:, ["volume"]]
+        df['VOL'] = df['volume']
+        names = []
+        for m in [m1, m2, m3]:
+            if m <= 0: continue
+            name = 'VMA%d' % m
+            names.append(name)
+            df[name] = df['volume'].rolling(center=False, min_periods=1, window=m).mean()
+
+        return df.loc[:, names + ['VOL']]
+
 
 
 
