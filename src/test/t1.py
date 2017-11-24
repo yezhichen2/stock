@@ -16,8 +16,19 @@ def main1():
     pt.show()
 
 
+def main2():
+    stock_data = ts.get_hist_data("600238", start="2017-07-01")
+    stock_data.sort_index(ascending=True, inplace=True)
+
+    mdi = ZB.mdi(stock_data)
+
+    mdi.plot()
+    pt.show()
+    print(mdi)
+
+
 
 
 if __name__ =="__main__":
 
-    main1()
+    main2()
