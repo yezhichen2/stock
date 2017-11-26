@@ -111,7 +111,6 @@ class ZB(object):
 
         return df.loc[:, names]
 
-
     @classmethod
     def vol(cls, stock_data, m1=3, m2=5, m3=10):
         """
@@ -129,7 +128,54 @@ class ZB(object):
 
         return df.loc[:, names + ['VOL']]
 
+    @classmethod
+    def ma_diff_desc(cls, stock_data):
+        """
+        均线系统描述及打分
+        :param stock_data:
+        :return:
+        """
+        df = stock_data.loc[:, ["close", "ma5", "ma10", "ma20"]]
+        ma5_10 = (df['ma5'] - df['ma10']) / df['ma10'] * 100
+        ma10_20 = (df['ma10'] - df['ma20']) / df['ma20'] * 100
+        ma5_20 = (df['ma5'] - df['ma20']) / df['ma20'] * 100
+        ma_desc = (ma5_10 + ma10_20 + (ma5_20 / 2)) / 3
 
+        df["_t1"] = 0.0
+        df.ix[(df['ma5'] > df['ma5'].shift(1)), '_t1'] = 1
+        df.ix[(df['ma5'] < df['close']), '_t1'] += 0.5
 
+        df["_t2"] = 0.0
+        df.ix[(df['ma10'] > df['ma10'].shift(1)), '_t2'] = 1
+        df.ix[(df['ma10'] < df['close']), '_t2'] += 0.5
+
+        df["_t3"] = 0.0
+        df.ix[(df['ma20'] > df['ma20'].shift(1)), '_t3'] = 1
+        df.ix[(df['ma20'] < df['close']), '_t3'] += 0.5
+
+        ma_score = df['_t1'] + df['_t2'] + df['_t3']
+
+        df_tmp = pd.DataFrame({
+            "ma5_10": ma5_10, "ma10_20": ma10_20, "ma5_20": ma5_20,
+            "ma_desc": ma_desc, "ma_score": ma_score
+        })
+
+        return df_tmp
+
+    @classmethod
+    def simple_duokong(cls, stock_data):
+        df = stock_data.loc[:, ["close", "open", "volume", "p_change"]]
+
+        df["dk_flag"] = 0
+        df.ix[df['close'] > df['open'], 'dk_flag'] = 1
+        df.ix[(df['close'] == df['open']) & (df['close'] >= df['close'].shift(1)), 'dk_flag'] = 1
+
+        df["mrate5"] = df["dk_flag"].rolling(center=False, min_periods=1, window=5).sum() / 5.0
+        df["mrate10"] = df["dk_flag"].rolling(center=False, min_periods=1, window=10).sum() / 10.0
+
+        df["mrate_avg"] = (df["mrate5"] + df["mrate10"]) / 2
+        df["mrate_diff"] = df["mrate5"] - df["mrate10"]
+
+        return df.loc[:, ["mrate5", "mrate10", "mrate_avg", "mrate_diff"]]
 
 
