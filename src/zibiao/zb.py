@@ -191,6 +191,10 @@ class ZB(object):
         df['red_v'] = 0
         df.ix[df['dk_flag'] == 1, 'red_v'] = df['volume']
 
+        df['sum3'] = df["volume"].rolling(center=False, min_periods=1, window=3).sum()
+        df['red_v_sum3'] = df["red_v"].rolling(center=False, min_periods=1, window=3).sum()
+        df['red_v_rate3'] = df['red_v_sum3'] / df['sum3'] * 100
+
         df['sum5'] = df["volume"].rolling(center=False, min_periods=1, window=5).sum()
         df['red_v_sum5'] = df["red_v"].rolling(center=False, min_periods=1, window=5).sum()
         df['red_v_rate5'] = df['red_v_sum5'] / df['sum5'] * 100
@@ -200,10 +204,30 @@ class ZB(object):
         df['red_v_rate10'] = df['red_v_sum10'] / df['sum10'] * 100
 
         df['rate_diff_5_10'] = df['red_v_rate5'] - df['red_v_rate10']
+        df['rate_diff_3_10'] = df['red_v_rate3'] - df['red_v_rate10']
+
         df['rate_sum_5_10'] = df['sum5'] / df['sum10'] * 100
+        df['rate_sum_3_10'] = df['sum3'] / df['sum10'] * 100
 
-        return df.loc[:, ["red_v_rate5", "red_v_rate10", "rate_diff_5_10", "rate_sum_5_10"]]
+        names = [
+            "red_v_rate3", "red_v_rate5", "red_v_rate10",
+            "rate_diff_5_10", "rate_diff_3_10",
+            "rate_sum_5_10", "rate_sum_3_10"
+        ]
+        return df.loc[:, names]
 
+    @classmethod
+    def zf_target(cls, stock_data, days=5):
+        df = stock_data.loc[:, ["close", "open", "p_change"]]
 
+        # 计算未来N天的涨幅
+        df['fzf'] = df["p_change"].shift(-days).rolling(center=False, min_periods=1, window=days).sum()
+
+        df['target'] = 1
+        df.ix[df['fzf'] > 2, 'target'] = 3
+        df.ix[(df['fzf'] > -2) & (df['fzf'] <= 2), 'target'] = 2
+
+        # 负-1，平-2，涨-3
+        return df.loc[:, ["target"]]
 
 
