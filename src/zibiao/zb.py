@@ -230,4 +230,31 @@ class ZB(object):
         # 负-1，平-2，涨-3
         return df.loc[:, ["target"]]
 
+    @classmethod
+    def buy_signal(cls, stock_data):
+        kdj_df = cls.kdj(stock_data)
+
+        kdj_df['signal'] = 0
+        kdj_df['k_ref1'] = kdj_df['kdj_k'].shift(1)
+        kdj_df['k_ref2'] = kdj_df['kdj_k'].shift(2)
+
+        kdj_df.ix[(kdj_df['kdj_k'] <= 40) & (kdj_df['k_ref2'] > kdj_df['k_ref1']) & (kdj_df['kdj_k'] > kdj_df['k_ref1']), 'signal'] = 1
+
+        # tmp_df = pd.concat([df, kdj_df], axis=1) # 横向合并
+        return kdj_df.loc[:, ["signal"]]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
