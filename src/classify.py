@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.cross_validation import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn import svm
+from sklearn import tree
 from sklearn.naive_bayes import GaussianNB
 
 import data_mgr
@@ -29,9 +30,9 @@ def main1():
 
     # X = scaler.transform(X)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
-    clf = svm.SVC()
+    clf = svm.SVC(C=1.0, kernel="poly")
     clf.fit(X_train, y_train)
 
     print(np.mean(clf.predict(X_test) == y_test))
@@ -43,14 +44,32 @@ def main2():
     X = all_md_df[names].values
     y = all_md_df['target'].values
 
-    scaler = StandardScaler()
-    X = scaler.fit_transform(X)
+    #scaler = StandardScaler()
+    #X = scaler.fit_transform(X)
 
     # X = scaler.transform(X)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
     clf = GaussianNB()
+    clf.fit(X_train, y_train)
+
+    print(np.mean(clf.predict(X_test) == y_test))
+
+def main3():
+
+    all_md_df = data_mgr.get_hs300_md_features()
+    X = all_md_df[names].values
+    y = all_md_df['target'].values
+
+    #scaler = StandardScaler()
+    #X = scaler.fit_transform(X)
+
+    # X = scaler.transform(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+
+    clf = tree.DecisionTreeClassifier()
     clf.fit(X_train, y_train)
 
     print(np.mean(clf.predict(X_test) == y_test))
@@ -58,4 +77,4 @@ def main2():
 
 if __name__ == '__main__':
 
-    main1()
+    main2()
