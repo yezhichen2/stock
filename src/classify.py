@@ -32,10 +32,22 @@ def main1():
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
-    clf = svm.SVC(C=1.0, kernel="poly")
+    from sklearn.model_selection import GridSearchCV
+    from sklearn import svm
+
+    model = svm.SVC(kernel="rbf")
+
+    param_grid = {"C": [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000], "gamma": [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000]}
+
+    clf = GridSearchCV(model, param_grid=param_grid,
+                       cv=5, scoring='accuracy')
+
     clf.fit(X_train, y_train)
 
-    print(np.mean(clf.predict(X_test) == y_test))
+    model = clf.best_estimator_
+
+    print(clf.best_params_)
+    print(np.mean(model.predict(X_test) == y_test))
 
 
 def main2():
@@ -53,6 +65,9 @@ def main2():
 
     clf = GaussianNB()
     clf.fit(X_train, y_train)
+
+
+
 
     print(np.mean(clf.predict(X_test) == y_test))
 
@@ -77,4 +92,4 @@ def main3():
 
 if __name__ == '__main__':
 
-    main2()
+    main1()
