@@ -39,6 +39,11 @@ class ZB(object):
         return df_temp['max']
 
     @classmethod
+    def _round(cls, df, names, d=4):
+        for name in names:
+            df[name] = df[name].round(decimals=d)
+
+    @classmethod
     def mdi(cls, stock_data, n=14, m=6):
         """
         MTR:=SUM(MAX(MAX(HIGH-LOW,ABS(HIGH-REF(CLOSE,1))),ABS(REF(CLOSE,1)-LOW)),N);
@@ -104,8 +109,8 @@ class ZB(object):
         df = stock_data.loc[:, ["close"]]
         names = []
         for m in [m1, m2, m3, m4]:
-            if m<=0:continue
-            name = 'MA%d' % m
+            if m <= 0: continue
+            name = 'ma%d' % m
             names.append(name)
             df[name] = df['close'].rolling(center=False, min_periods=1, window=m).mean()
 
@@ -160,7 +165,9 @@ class ZB(object):
             "ma_desc": ma_desc, "ma_score": ma_score
         })
 
+        cls._round(df_tmp, names=["ma5_10", "ma10_20", "ma5_20", "ma_desc", "ma_score"])
         return df_tmp
+
 
     @classmethod
     def simple_duokong(cls, stock_data):
@@ -176,8 +183,8 @@ class ZB(object):
         df["mrate_avg"] = (df["mrate5"] + df["mrate10"]) / 2
         df["mrate_diff"] = df["mrate5"] - df["mrate10"]
 
+        cls._round(df, names=["mrate5", "mrate10", "mrate_avg", "mrate_diff"])
         return df.loc[:, ["mrate5", "mrate10", "mrate_avg", "mrate_diff"]]
-
 
 
     @classmethod
@@ -214,6 +221,7 @@ class ZB(object):
             "rate_diff_5_10", "rate_diff_3_10",
             "rate_sum_5_10", "rate_sum_3_10"
         ]
+        cls._round(df, names=names)
         return df.loc[:, names]
 
     @classmethod
