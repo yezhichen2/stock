@@ -39,8 +39,7 @@ def main1():
 
     param_grid = {"C": [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000], "gamma": [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000]}
 
-    clf = GridSearchCV(model, param_grid=param_grid,
-                       cv=5, scoring='accuracy')
+    clf = GridSearchCV(model, param_grid=param_grid, cv=5, scoring='accuracy')
 
     clf.fit(X_train, y_train)
 
@@ -55,7 +54,7 @@ def main2():
     all_md_df = data_mgr.get_hs300_md_features()
     X = all_md_df[names].values
     y = all_md_df['target'].values
-
+    print(all_md_df.tail(5))
     #scaler = StandardScaler()
     #X = scaler.fit_transform(X)
 
@@ -63,19 +62,19 @@ def main2():
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
+    print(X_train)
     clf = GaussianNB()
     clf.fit(X_train, y_train)
 
-
-
-
     print(np.mean(clf.predict(X_test) == y_test))
+
 
 def main3():
 
     all_md_df = data_mgr.get_hs300_md_features()
     X = all_md_df[names].values
     y = all_md_df['target'].values
+
 
     #scaler = StandardScaler()
     #X = scaler.fit_transform(X)
@@ -92,4 +91,4 @@ def main3():
 
 if __name__ == '__main__':
 
-    main1()
+    main2()

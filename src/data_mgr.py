@@ -7,7 +7,7 @@ import re
 
 import pandas as pd
 import tushare as ts
-import matplotlib.pyplot as pt
+import matplotlib.pyplot as plt
 from zibiao.zb import ZB
 
 ctx = {"sum": 0}
@@ -24,12 +24,12 @@ def download_k_data(code):
     stock_data['p_change'] = ((stock_data['close'] - stock_data['close'].shift(1)) / stock_data['close'].shift(1) * 100).round(2)
 
     stock_data = stock_data.ix[1:]
-    with open("h_datas\\%s.model" % code, "wb+") as mfile:
+    with open(r"h_datas\%s.model" % code, "wb+") as mfile:
         pickle.dump(stock_data, mfile)
 
 
 def get_k_data(code):
-    with open("h_datas\\%s.model" % code, "rb") as mfile:
+    with open(r"h_datas\%s.model" % code, "rb") as mfile:
         stock_data = pickle.load(mfile)
         return stock_data
 
@@ -144,7 +144,6 @@ def get_hs300_md_features():
     return all_df
 
 
-
 if __name__ == '__main2__':
     code, df = extract_md_features("600369")
 
@@ -152,4 +151,19 @@ if __name__ == '__main2__':
 
 
 if __name__ == '__main__':
-    print(get_hs300_md_features().tail(10))
+    all_df = get_hs300_md_features()
+    import seaborn as sb
+
+    # x1 = all_df['ma_desc'] <= -18
+    # x2 = (all_df['target'] >= 2) & (all_df['target'] < 2.1)
+
+    #all_df = all_df.ix[:, ["ma_desc", "ma_score", "target"]]
+    all_df.loc[:, "target"] = 4 - all_df['target']
+
+    print(all_df.describe())
+
+    sb.pairplot(all_df, hue="target")
+    plt.show()
+
+
+
