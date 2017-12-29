@@ -119,6 +119,33 @@ def extract_md_features(code):
     return code, md_df
 
 
+
+
+def extract_md2(code):
+    """
+
+    :param code:
+    :return:
+    """
+    stock_data = get_k_data(code)
+    stock_data.sort_index(ascending=True, inplace=True)
+
+    ma_df = ZB.ma(stock_data, m4=0)
+    stock_data = pd.concat([stock_data, ma_df], axis=1)
+
+    target_df = ZB.zf_target(stock_data)
+    ma_diff_desc_df = ZB.ma_diff_desc(stock_data)
+    signal_df = ZB.ma_buy_signal2(ma_diff_desc_df)
+
+    concat_list = [signal_df, target_df]
+    md_df = pd.concat(concat_list, axis=1)
+    md_df = md_df.loc[md_df['signal2'] > 0]
+    # print(md_df)
+    # print(x.describe())
+
+    return code, md_df
+
+
 def extract_hs300_md_features():
     hs300_md_features_dfs = []
     for code, md_df in iter_hs300s(extract_md_features):
@@ -150,7 +177,7 @@ if __name__ == '__main2__':
     print(df[["target", "signal"]].values)
 
 
-if __name__ == '__main__':
+if __name__ == '__main3__':
     all_df = get_hs300_md_features()
     import seaborn as sb
 
@@ -167,3 +194,10 @@ if __name__ == '__main__':
 
 
 
+if __name__ == '__main4__':
+
+    for code, md_df in iter_hs300s(extract_md2):
+        print("##########################")
+        if len(md_df) <= 0: continue
+        print(code)
+        print(md_df)

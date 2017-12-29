@@ -46,6 +46,13 @@ class ZB(object):
 
         return df.loc[:, ["kdj_k", "kdj_d", "kdj_j"]]
 
+    @classmethod
+    def _cross(cls, s1, s2):
+        df_temp = pd.DataFrame({"a": s1, "b": s2})
+
+        df_temp["cross"] = False
+        df_temp.ix[(df_temp['a'].shift(1) <= df_temp['b'].shift(1)) & (df_temp['a'] > df_temp['b']), "cross"] = True
+        return df_temp["cross"]
 
     @classmethod
     def _max(cls, s1, s2):
